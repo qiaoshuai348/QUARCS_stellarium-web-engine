@@ -1560,7 +1560,6 @@ export default {
                   ];
                   this.SolveFovMark(RaDec);
                 }
-                
                 break;
 
               case 'RealTimeSolveImageResult':
