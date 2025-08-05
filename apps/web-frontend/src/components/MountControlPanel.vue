@@ -141,7 +141,7 @@ export default {
 
       isIDLE: true,
 
-      FocalLength: 510,
+      FocalLength: 0,
       // CameraSizeWidth: 24.9,
       // CameraSizeHeight: 16.6,
 
@@ -205,7 +205,7 @@ export default {
     this.$bus.$on('updateMountPierSide', this.updateMountPierSide);
     this.$bus.$on('MountConnected', this.updateMountConnection);
     this.$bus.$on('MountOperationComplete', this.handleOperationComplete);
-    
+    this.$bus.$on('handleOperationComplete', this.handleOperationComplete);
     // 新增经纬度监听
     this.$bus.$on('updateCurrentLocation', this.updateCurrentLocation);
     
@@ -292,8 +292,19 @@ export default {
       console.log('QHYCCD | SolveSYNC');
       this.isSolveProcessing = true;
       this.$bus.$emit('SendConsoleLogMsg', 'Mount Solve SYNC', 'info');
-      this.$bus.$emit('AppSendMessage', 'Vue_Command', 'SolveSYNC:' + this.FocalLength);
+      this.$bus.$emit('AppSendMessage', 'Vue_Command', 'SolveSYNC');
       // 处理状态将由MountOperationComplete信号结束
+      // 3秒后自动结束动画（解析通常需要几秒钟）
+      // setTimeout(() => {
+      //   this.isSolveProcessing = false;
+      //    this.$bus.$emit('showMsgBox', '解析同步成功！', 'success');
+      // },3000);
+      // setTimeout(() => {
+      //   if (this.isSolveProcessing) {
+      //     this.isSolveProcessing = false;
+      //     console.log('解析操作超时，自动结束处理状态');
+      //   }
+      // }, 10000); // 10秒超时
     },
     getTargetRaDec(value) {
       console.log('getTargetRaDec:', value);
@@ -461,7 +472,9 @@ export default {
           this.isSyncProcessing = false;
           break;
         case 'solve':
-          this.isSolveProcessing = false;
+          this.isSolveProcessing = false; // 停止解析处理状态
+          // this.$bus.$emit('showMsgBox', '解析同步成功', 'success');
+          
           break;
       }
     },
@@ -486,6 +499,7 @@ export default {
           break;
         case 'solve':
           this.isErrorSolve = true;
+         
           setTimeout(() => { this.isErrorSolve = false; }, 800);
           break;
       }
